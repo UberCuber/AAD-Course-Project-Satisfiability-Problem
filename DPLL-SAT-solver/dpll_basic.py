@@ -109,17 +109,14 @@ def dpll(clauses: List[List[int]], assignment: Dict[int, bool]) -> Optional[Dict
     if not clauses:
         return assignment
     
-    # Choose variable (simple heuristic: first unassigned)
+    # SIMPLE BASELINE variable selection - just pick first unassigned variable
     all_vars = {abs(lit) for clause in clauses for lit in clause}
     unassigned = [v for v in all_vars if v not in assignment]
     if not unassigned:
         return assignment
     
-    # Better heuristic: choose variable that appears in most clauses
-    var_counts = {}
-    for var in unassigned:
-        var_counts[var] = sum(1 for clause in clauses if var in clause or -var in clause)
-    var = max(unassigned, key=lambda v: var_counts.get(v, 0))
+    # BASELINE: Simple first-unassigned variable selection (no heuristics)
+    var = min(unassigned)  # Pick smallest unassigned variable number
     
     # Try both assignments
     for val in [True, False]:
@@ -162,25 +159,30 @@ def solve_cnf(clauses: List[List[int]]):
     result = dpll(clauses, {})
     end = time.time()
     
-    print("\n===== DPLL Solver Results =====")
+    print("\n===== Basic DPLL Solver Results =====")
     if result is None:
         print("Result: UNSATISFIABLE")
     else:
         print("Result: SATISFIABLE")
         print("Assignment:", result)
-    print("--------------------------------")
+    print("--------------------------------------")
     print(f"Recursive Calls: {stats['calls']}")
     print(f"Unit Propagations: {stats['unit_props']}")
     print(f"Pure Literals Used: {stats['pure_literals']}")
     print(f"Backtracks: {stats['backtracks']}")
     print(f"Time Taken: {end - start:.6f} sec")
-    print("================================\n")
+    print("======================================\n")
 
 if __name__ == "__main__":
+    print("Testing Basic DPLL SAT Solver (Part 1)")
+    print("=====================================")
+    
     # Example 1: SAT
+    print("Test 1: Satisfiable formula")
     clauses = [[1, 2], [-1, 2], [1, -2]]
     solve_cnf(clauses)
     
     # Example 2: UNSAT  
+    print("Test 2: Unsatisfiable formula")
     clauses = [[1], [-1]]
     solve_cnf(clauses)
