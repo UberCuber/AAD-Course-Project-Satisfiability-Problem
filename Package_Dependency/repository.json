@@ -1,0 +1,16 @@
+{
+    "dependencies": {
+        "WebBrowser": ["HtmlLib", "NetworkDriver"],
+        "HtmlLib": ["CRuntime"],
+        "VideoPlayer": ["Codecs-v1", "ScreenDriver"],
+        "Codecs-v1": ["LibMath"],
+        "Codecs-v2": ["LibMath-Advanced"]
+    },
+    "conflicts": [
+        ["Codecs-v1", "Codecs-v2"],
+        ["NetworkDriver", "LegacyNetworkDriver"]
+    ],
+    "versions": [
+        ["Codecs-v1", "Codecs-v2"]
+    ]
+}

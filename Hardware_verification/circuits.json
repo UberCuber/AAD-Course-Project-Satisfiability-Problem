@@ -1,0 +1,22 @@
+{
+    "DeMorgan_Test": {
+        "description": "Verify that NAND(A,B) == OR(NOT A, NOT B)",
+        "inputs": ["A", "B"],
+        "gates": [
+            {"type": "NAND", "in": ["A", "B"], "out": "ref_out"},
+            {"type": "NOT",  "in": ["A"],      "out": "not_a"},
+            {"type": "NOT",  "in": ["B"],      "out": "not_b"},
+            {"type": "OR",   "in": ["not_a", "not_b"], "out": "opt_out"}
+        ],
+        "compare": ["ref_out", "opt_out"]
+    },
+    "Buggy_XOR_Test": {
+        "description": "Attempt to prove XOR(A,B) == OR(A,B) (Should Fail)",
+        "inputs": ["A", "B"],
+        "gates": [
+            {"type": "XOR", "in": ["A", "B"], "out": "ref_out"},
+            {"type": "OR",  "in": ["A", "B"], "out": "opt_out"}
+        ],
+        "compare": ["ref_out", "opt_out"]
+    }
+}

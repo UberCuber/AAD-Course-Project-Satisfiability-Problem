@@ -156,7 +156,6 @@ class WalkSATSolver:
 if __name__ == "__main__":
     solver = WalkSATSolver()
 
-    # CASE 1: If a filename is provided, load it (PROFESSIONAL MODE)
     # Usage: python walksat.py my_problem.cnf
     if len(sys.argv) > 1:
         filename = sys.argv[1]
@@ -171,18 +170,4 @@ if __name__ == "__main__":
         else:
             print("UNSATISFIABLE (or timed out)")
 
-    # CASE 2: No file provided, run hardcoded demo (BACKUP / TEST MODE)
-    else:
-        print("--- No file provided. Running Hardcoded Demo ---")
-        print("Usage to load file: python walksat.py <filename.cnf>")
-        
-        # (A or B) AND (!A or B) AND (!B or C)
-        demo_clauses = [[1, 2], [-1, 2], [-2, 3]]
-        n_vars = 3
-        
-        solver.load_from_list(demo_clauses, n_vars)
-        solution = solver.solve(max_flips=100, max_tries=5, p=0.5)
-        
-        if solution:
-            print("Assignment:", solution)
-            print(f"Is variable 2 True? {solution[2]}")
+    
