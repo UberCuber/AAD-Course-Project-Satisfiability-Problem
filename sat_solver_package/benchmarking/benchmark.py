@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
-Benchmarking script for SAT solvers
-Runs all solvers on all CNF files in a directory and outputs results to CSV
+SAT Solver Benchmarking Script
+
+This script benchmarks multiple SAT solver implementations on a directory of CNF instances.
+It runs each solver on each instance, measures performance metrics, and outputs results to CSV.
+
+Author: Advanced Algorithm Design Course Project
+Date: December 2025
 """
 
 import os
@@ -11,6 +16,7 @@ import subprocess
 import glob
 from pathlib import Path
 from datetime import datetime
+from typing import Tuple, List, Dict
 
 # Solver names
 SOLVERS = [
@@ -42,10 +48,36 @@ SOLVER_NAMES = {
     'cdcl_solver': 'CDCL (MINISAT heuristic)'
 }
 
-def run_solver(solver_path, cnf_file, timeout=180):
+def run_solver(solver_path: str, cnf_file: str, timeout: int = 180) -> Tuple[str, float, int, int, int, int, int]:
     """
-    Run a single solver on a CNF file
-    Returns: (result, time, depth, memory, decisions, backtracks, timeout_flag)
+    Execute a single SAT solver on a CNF instance and parse its output.
+    
+    This function runs a compiled SAT solver binary on a CNF file with a timeout.
+    It handles different command-line interfaces for CDCL vs DPLL solvers and
+    parses the standardized output format.
+    
+    Args:
+        solver_path (str): Absolute or relative path to the compiled solver binary
+        cnf_file (str): Path to the CNF instance file
+        timeout (int): Maximum execution time in seconds (default: 180)
+    
+    Returns:
+        Tuple[str, float, int, int, int, int, int]: A 7-tuple containing:
+            - result (str): 'SAT', 'UNSAT', 'TIMEOUT', or 'ERROR'
+            - time (float): Execution time in seconds
+            - depth (int): Maximum recursion depth
+            - memory (int): Peak memory usage in kilobytes
+            - decisions (int): Number of branching decisions made
+            - backtracks (int): Number of backtrack operations
+            - timeout_flag (int): 1 if timeout occurred, 0 otherwise
+    
+    Output Format:
+        Solvers must output: SAT,time,depth,memory,decisions,backtracks,timeout
+        Example: SAT,0.0012,15,0,87,23,0
+    
+    Raises:
+        subprocess.TimeoutExpired: If execution exceeds timeout limit
+        Exception: For any other runtime errors
     """
     try:
         # CDCL solver has different command line arguments
@@ -89,9 +121,33 @@ def run_solver(solver_path, cnf_file, timeout=180):
         print(f"Error running {solver_path} on {cnf_file}: {e}")
         return ('ERROR', 0, 0, 0, 0, 0, 0)
 
-def benchmark(instances_dir, output_csv, build_dir='build', timeout=180):
+def benchmark(instances_dir: str, output_csv: str, build_dir: str = 'build', timeout: int = 180) -> None:
     """
-    Run all solvers on all CNF files in instances_dir
+    Benchmark all compiled SAT solvers on all CNF instances in a directory.
+    
+    This function orchestrates the complete benchmarking process:
+    1. Discovers all .cnf files in the instances directory
+    2. Iterates through all solver binaries
+    3. Runs each solver on each instance with timeout
+    4. Writes performance metrics to a CSV file
+    
+    The function provides real-time progress feedback and handles missing binaries gracefully.
+    
+    Args:
+        instances_dir (str): Directory containing .cnf instance files
+        output_csv (str): Output CSV file path for benchmark results
+        build_dir (str): Directory containing compiled solver binaries (default: 'build')
+        timeout (int): Per-instance timeout in seconds (default: 180)
+    
+    Returns:
+        None: Results are written to output_csv file
+    
+    CSV Output Format:
+        Columns: instance, solver, solver_name, result, time_seconds, 
+                max_recursion_depth, memory_kb, num_decisions, num_backtracks, timeout
+    
+    Example:
+        benchmark('datasets/uf20', 'results/uf20_bench.csv', timeout=60)
     """
     # Get all CNF files
     cnf_files = sorted(glob.glob(os.path.join(instances_dir, '*.cnf')))
@@ -167,7 +223,35 @@ def benchmark(instances_dir, output_csv, build_dir='build', timeout=180):
     print("\n" + "=" * 80)
     print(f"Benchmarking complete! Results saved to {output_csv}")
 
-def main():
+def main() -> None:
+    """
+    Main entry point for the benchmarking script with command-line interface.
+    
+    Parses command-line arguments, validates inputs, checks for compiled solvers,
+    and initiates the benchmarking process.
+    
+    Command-Line Usage:
+        python benchmark.py <instances_dir> [output.csv] [timeout_seconds]
+    
+    Arguments:
+        instances_dir (required): Directory containing CNF instance files
+        output.csv (optional): Output CSV filename (default: benchmark_results_TIMESTAMP.csv)
+        timeout_seconds (optional): Timeout per instance in seconds (default: 180)
+    
+    Examples:
+        python benchmark.py datasets/uf20
+        python benchmark.py datasets/uf50 results/uf50_bench.csv 120
+        python benchmark.py ../instances output.csv 60
+    
+    Exit Codes:
+        0: Success
+        1: Error (missing directory, no solvers compiled, user cancelled)
+    
+    Pre-requisites:
+        - Solvers must be compiled in the 'build/' directory
+        - CNF files must have .cnf extension
+        - Python 3.9+ with standard library
+    """
     if len(sys.argv) < 2:
         print("Usage: python benchmark.py <instances_directory> [output.csv] [timeout_seconds]")
         print("\nExample:")

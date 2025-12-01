@@ -1,7 +1,20 @@
 #!/usr/bin/env python3
 """
 Professional Plot Generation for SAT Solver Benchmarking
-Generates 8 comprehensive plots for research paper quality analysis
+
+This script generates 8 comprehensive publication-quality plots for analyzing
+SAT solver performance across multiple dimensions:
+- Time performance comparison
+- Memory usage analysis
+- Decision/backtrack metrics
+- Speedup comparisons
+- Success rates
+
+The plots are designed for research paper inclusion with high-resolution output (300 DPI).
+
+Author: Advanced Algorithm Design Course Project
+Date: December 2025
+Requirements: pandas, matplotlib, seaborn, numpy
 """
 
 import pandas as pd
@@ -9,6 +22,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 from pathlib import Path
+from typing import Optional
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -47,8 +61,37 @@ SOLVER_COLORS = {
     'cdcl_solver': '#ff1493'  # Hot pink for CDCL to stand out
 }
 
-def load_data():
-    """Load all benchmark data"""
+def load_data() -> pd.DataFrame:
+    """
+    Load and combine benchmark results from all three SATLIB datasets.
+    
+    This function reads CSV files for UF20, UF50, and UF100 benchmarks,
+    adds dataset identifiers, filters out timeouts and errors, and
+    combines them into a single DataFrame for analysis.
+    
+    Returns:
+        pd.DataFrame: Combined benchmark data with columns:
+            - instance (str): CNF filename
+            - solver (str): Solver identifier (e.g., 'vsids', 'cdcl_solver')
+            - solver_name (str): Human-readable solver name
+            - result (str): 'SAT' or 'UNSAT'
+            - time_seconds (float): Execution time
+            - max_recursion_depth (int): Maximum search depth
+            - memory_kb (int): Peak memory usage
+            - num_decisions (int): Number of branching decisions
+            - num_backtracks (int): Number of backtrack operations
+            - timeout (int): Timeout flag (0 or 1)
+            - dataset (str): Dataset identifier with variable count
+            - num_vars (int): Number of variables (20, 50, or 100)
+    
+    Filters:
+        - Excludes timeout instances (timeout == 1)
+        - Excludes error results (result not in ['SAT', 'UNSAT'])
+    
+    Example:
+        df = load_data()
+        print(df.groupby('solver')['time_seconds'].median())
+    """
     print("Loading benchmark data...")
     
     uf20 = pd.read_csv('results/uf20_benchmark.csv')
@@ -80,8 +123,31 @@ def load_data():
     
     return df
 
-def plot1_time_per_heuristic(df):
-    """Plot 1: Line graph for each heuristic across all datasets"""
+def plot1_time_per_heuristic(df: pd.DataFrame) -> None:
+    """
+    Generate Plot 1: Individual solver performance across all datasets.
+    
+    Creates a 3x4 grid of subplots showing execution time for each solver
+    across UF20, UF50, and UF100 datasets. Each subplot shows instance-by-instance
+    performance with different colored lines for each dataset.
+    
+    Args:
+        df (pd.DataFrame): Combined benchmark data from load_data()
+    
+    Output:
+        Saves to 'results/plots/01_time_per_heuristic.png' (300 DPI)
+    
+    Visualization Details:
+        - 11 subplots (one per solver)
+        - X-axis: Instance index (0-199)
+        - Y-axis: Execution time (logarithmic scale)
+        - Three lines per solver (UF20, UF50, UF100)
+        - Color-coded by dataset
+    
+    Purpose:
+        Shows how each solver's performance degrades with increasing problem size.
+        Helps identify solvers that scale well vs those sensitive to instance size.
+    """
     print("\nGenerating Plot 1: Time per heuristic across datasets...")
     
     fig, axes = plt.subplots(3, 4, figsize=(16, 12))

@@ -1,0 +1,15 @@
+# SAT Solver Benchmarking Package - Python Dependencies
+
+# Core Data Analysis
+pandas>=1.3.0
+numpy>=1.21.0
+
+# Visualization
+matplotlib>=3.4.0
+seaborn>=0.11.0
+
+# System Monitoring (optional, for memory tracking)
+psutil>=5.8.0
+
+# Additional utilities
+scipy>=1.7.0

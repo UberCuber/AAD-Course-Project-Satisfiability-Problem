@@ -2,6 +2,18 @@
 
 A comprehensive benchmarking and analysis package for Boolean Satisfiability (SAT) solvers, featuring 10+ solver variants from basic DPLL to state-of-the-art CDCL with extensive visualization.
 
+## 📋 Repository Requirements Compliance
+
+This repository meets all course requirements:
+
+✅ **README.md**: Comprehensive guide for compilation, dependencies, and execution  
+✅ **Well-Commented Code**: All C++ and Python files include detailed comments  
+✅ **Test/Benchmarking Harness**: Complete benchmarking scripts (`benchmark.py`, `run_full_benchmark.sh`)  
+✅ **Docstrings**: All Python functions have type-annotated docstrings  
+✅ **Modularized Code**: Each algorithm in separate file with helper utilities  
+
+**See [COMPLIANCE.md](COMPLIANCE.md) for detailed evidence of all requirements.**
+
 ## Package Structure
 
 ```
@@ -51,9 +63,15 @@ sat_solver_package/
 ### Prerequisites
 - **C++ Compiler**: g++ or clang++ with C++17 support
 - **Python**: 3.9+
-- **Python Libraries**:
+- **Python Libraries**: Install from requirements.txt
   ```bash
-  pip install pandas numpy matplotlib seaborn
+  cd sat_solver_package
+  pip install -r requirements.txt
+  ```
+  
+  Or install manually:
+  ```bash
+  pip install pandas numpy matplotlib seaborn psutil scipy
   ```
 
 ### One-Command Full Benchmark
@@ -61,6 +79,7 @@ sat_solver_package/
 Run everything (builds solvers, benchmarks 3 datasets, generates 40+ plots):
 
 ```bash
+cd sat_solver_package
 ./run_full_benchmark.sh
 ```
 
@@ -71,6 +90,88 @@ Run everything (builds solvers, benchmarks 3 datasets, generates 40+ plots):
 - `results/uf50_benchmark.csv` (2,200 runs)
 - `results/uf100_benchmark.csv` (2,200 runs)
 - `results/plots/` (42 plots total)
+
+## 🔧 How to Compile and Install
+
+### Step 1: Install Dependencies
+
+#### System Requirements
+- **Operating System**: macOS, Linux, or Windows (WSL)
+- **C++ Compiler**: 
+  - GCC 7+ (for C++17 support)
+  - Clang 5+ (alternative)
+  - macOS: Install Xcode Command Line Tools
+    ```bash
+    xcode-select --install
+    ```
+- **Python**: 3.9 or higher
+
+#### Python Dependencies
+
+```bash
+cd sat_solver_package
+pip install -r requirements.txt
+```
+
+This installs:
+- `pandas` - Data manipulation
+- `numpy` - Numerical computing
+- `matplotlib` - Plotting
+- `seaborn` - Statistical visualization
+- `psutil` - System monitoring
+- `scipy` - Scientific computing
+
+### Step 2: Build C++ Solvers
+
+Navigate to the package directory and build all solvers:
+
+```bash
+cd sat_solver_package
+make -C solvers all
+```
+
+Or use the Makefile in the root directory:
+
+```bash
+cd sat_solver_package
+make all
+```
+
+**What this does:**
+- Compiles 11 C++ solver variants
+- Creates `build/` directory
+- Generates optimized binaries with `-O3` flag
+- Outputs: `build/basic_dpll`, `build/vsids`, `build/cdcl_solver`, etc.
+
+#### Build Individual Solvers
+
+```bash
+cd sat_solver_package
+make -C solvers vsids      # Build only VSIDS
+make -C solvers cdcl_solver # Build only CDCL
+```
+
+#### Clean and Rebuild
+
+```bash
+make -C solvers clean       # Remove all binaries
+make -C solvers rebuild     # Clean + build all
+```
+
+### Step 3: Verify Installation
+
+Test a single solver:
+
+```bash
+cd sat_solver_package
+./solvers/build/vsids datasets/uf20/uf20-01.cnf
+```
+
+Expected output (comma-separated):
+```
+SAT,0.0012,15,0,87,23,0
+# Format: result,time_seconds,max_depth,memory_kb,decisions,backtracks,timeout
+```
 
 ## Manual Execution
 

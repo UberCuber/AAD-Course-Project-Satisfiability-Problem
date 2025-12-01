@@ -1,13 +1,44 @@
 """
-Base DPLL Solver - No heuristics
-Pure backtracking search
+Basic DPLL SAT Solver Implementation
+
+This module implements the Davis-Putnam-Logemann-Loveland (DPLL) algorithm
+for solving Boolean Satisfiability (SAT) problems in Conjunctive Normal Form (CNF).
+
+This is a baseline implementation with NO heuristics or optimizations:
+- Pure chronological backtracking
+- Simple first-unassigned variable selection
+- Basic clause simplification
+
+Algorithm:
+    1. Simplify clauses based on current partial assignment
+    2. If unsatisfiable -> backtrack
+    3. If all clauses satisfied -> return SAT
+    4. Choose next unassigned variable (no heuristic)
+    5. Try assigning True, recurse
+    6. If fails, try False, recurse
+    7. If both fail -> backtrack
+
+Author: Advanced Algorithm Design Course Project
+Date: December 2025
+Complexity: Exponential worst-case O(2^n) where n = number of variables
 """
 
 from cnf_parser import CNFFormula
+from typing import Dict, List, Set, Tuple, Optional
 
 
 class SolverStats:
-    """Track solver statistics"""
+    """
+    Statistics tracker for solver performance metrics.
+    
+    Attributes:
+        decisions (int): Number of branching decisions (variable assignments)
+        backtracks (int): Number of backtrack operations due to conflicts
+        unit_propagations (int): Number of unit clause propagations
+        pure_eliminations (int): Number of pure literal eliminations
+        learned_clauses (int): Number of conflict clauses learned (CDCL only)
+        restarts (int): Number of solver restarts (CDCL only)
+    """
     
     def __init__(self):
         self.decisions = 0
@@ -28,8 +59,33 @@ class SolverStats:
 
 class DPLLSolver:
     """
-    Basic DPLL SAT Solver
-    Pure chronological backtracking with no optimizations
+    Basic DPLL SAT Solver with chronological backtracking.
+    
+    This class implements the core DPLL algorithm without any heuristics
+    or optimizations. It serves as a baseline for comparing more sophisticated
+    solvers (VSIDS, CDCL, etc.).
+    
+    Attributes:
+        formula (CNFFormula): The CNF formula to solve
+        assignment (Dict[int, bool]): Current partial assignment (var -> True/False)
+        stats (SolverStats): Performance metrics tracker
+    
+    Time Complexity:
+        Worst-case: O(2^n) where n = number of variables
+        Best-case: O(n) if formula is trivially satisfiable
+    
+    Space Complexity:
+        O(n * m) where n = variables, m = clauses (for storing formula)
+    
+    Example:
+        >>> from cnf_parser import CNFParser
+        >>> formula = CNFParser.parse('instance.cnf')
+        >>> solver = DPLLSolver(formula)
+        >>> sat, assignment = solver.solve()
+        >>> if sat:
+        ...     print(f"SAT with assignment: {assignment}")
+        ... else:
+        ...     print("UNSAT")
     """
     
     def __init__(self, formula):
