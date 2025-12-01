@@ -1,337 +1,217 @@
-# SAT Solver Benchmark Package
+# SAT Solver Project
 
-A comprehensive benchmarking and analysis package for Boolean Satisfiability (SAT) solvers, featuring 10+ solver variants from basic DPLL to state-of-the-art CDCL with extensive visualization.
-
-## 📋 Repository Requirements Compliance
-
-This repository meets all course requirements:
-
-✅ **README.md**: Comprehensive guide for compilation, dependencies, and execution  
-✅ **Well-Commented Code**: All C++ and Python files include detailed comments  
-✅ **Test/Benchmarking Harness**: Complete benchmarking scripts (`benchmark.py`, `run_full_benchmark.sh`)  
-✅ **Docstrings**: All Python functions have type-annotated docstrings  
-✅ **Modularized Code**: Each algorithm in separate file with helper utilities  
-
-**See [COMPLIANCE.md](COMPLIANCE.md) for detailed evidence of all requirements.**
-
-## Package Structure
-
-```
-sat_solver_package/
-├── datasets/              # Benchmark instances
-│   ├── uf20/             # 200 instances, 20 variables, 91 clauses
-│   ├── uf50/             # 200 instances, 50 variables, 218 clauses
-│   └── uf100/            # 200 instances, 100 variables, 430 clauses
-├── solvers/              # Solver implementations
-│   ├── *.cpp             # C++ solver sources (11 variants)
-│   ├── *.py              # Python DPLL implementations
-│   └── Makefile          # Build configuration
-├── benchmarking/         # Benchmarking utilities
-│   └── benchmark.py      # Main benchmarking script
-├── plotting/             # Visualization scripts
-│   ├── generate_plots.py              # Core 8 comparative plots
-│   ├── generate_individual_plots.py   # Per-solver time/memory
-│   └── generate_advanced_plots.py     # Advanced analytical plots
-├── results/              # Output directory (created on run)
-│   ├── *.csv             # Benchmark data
-│   └── plots/            # Generated visualizations
-├── run_full_benchmark.sh # ONE-CLICK AUTOMATION SCRIPT
-└── README.md             # This file
-```
-
-## Solver Variants
-
-### C++ Implementations (Optimized with -O3)
-1. **basic_dpll** - Pure chronological backtracking
-2. **unit_prop** - DPLL + Unit Propagation
-3. **vsids** - DPLL + VSIDS variable selection
-4. **dlis** - DPLL + Dynamic Largest Individual Sum
-5. **mom** - DPLL + Maximum Occurrences in Minimum clauses
-6. **jw** - DPLL + Jeroslow-Wang weighting
-7. **dlcs** - DPLL + Dynamic Largest Combined Sum
-8. **phase_saving** - DPLL + Phase saving heuristic
-9. **backjumping** - DPLL + Non-chronological backtracking
-10. **random** - DPLL + Random variable selection
-11. **cdcl_solver** - Full CDCL with 1-UIP, watched literals, VSIDS, restarts
-
-### Python Implementations
-- All DPLL variants (basic, unit propagation, pure literal, heuristics)
-- CDCL solver with clause learning
-
-## Quick Start
-
-### Prerequisites
-- **C++ Compiler**: g++ or clang++ with C++17 support
-- **Python**: 3.9+
-- **Python Libraries**: Install from requirements.txt
-  ```bash
-  cd sat_solver_package
-  pip install -r requirements.txt
-  ```
-  
-  Or install manually:
-  ```bash
-  pip install pandas numpy matplotlib seaborn psutil scipy
-  ```
-
-### One-Command Full Benchmark
-
-Run everything (builds solvers, benchmarks 3 datasets, generates 40+ plots):
-
-```bash
-cd sat_solver_package
-./run_full_benchmark.sh
-```
-
-**Expected runtime**: ~30-60 minutes depending on hardware (timeout per instance: 180s)
-
-**Output**:
-- `results/uf20_benchmark.csv` (2,200 runs)
-- `results/uf50_benchmark.csv` (2,200 runs)
-- `results/uf100_benchmark.csv` (2,200 runs)
-- `results/plots/` (42 plots total)
-
-## 🔧 How to Compile and Install
-
-### Step 1: Install Dependencies
-
-#### System Requirements
-- **Operating System**: macOS, Linux, or Windows (WSL)
-- **C++ Compiler**: 
-  - GCC 7+ (for C++17 support)
-  - Clang 5+ (alternative)
-  - macOS: Install Xcode Command Line Tools
-    ```bash
-    xcode-select --install
-    ```
-- **Python**: 3.9 or higher
-
-#### Python Dependencies
-
-```bash
-cd sat_solver_package
-pip install -r requirements.txt
-```
-
-This installs:
-- `pandas` - Data manipulation
-- `numpy` - Numerical computing
-- `matplotlib` - Plotting
-- `seaborn` - Statistical visualization
-- `psutil` - System monitoring
-- `scipy` - Scientific computing
-
-### Step 2: Build C++ Solvers
-
-Navigate to the package directory and build all solvers:
-
-```bash
-cd sat_solver_package
-make -C solvers all
-```
-
-Or use the Makefile in the root directory:
-
-```bash
-cd sat_solver_package
-make all
-```
-
-**What this does:**
-- Compiles 11 C++ solver variants
-- Creates `build/` directory
-- Generates optimized binaries with `-O3` flag
-- Outputs: `build/basic_dpll`, `build/vsids`, `build/cdcl_solver`, etc.
-
-#### Build Individual Solvers
-
-```bash
-cd sat_solver_package
-make -C solvers vsids      # Build only VSIDS
-make -C solvers cdcl_solver # Build only CDCL
-```
-
-#### Clean and Rebuild
-
-```bash
-make -C solvers clean       # Remove all binaries
-make -C solvers rebuild     # Clean + build all
-```
-
-### Step 3: Verify Installation
-
-Test a single solver:
-
-```bash
-cd sat_solver_package
-./solvers/build/vsids datasets/uf20/uf20-01.cnf
-```
-
-Expected output (comma-separated):
-```
-SAT,0.0012,15,0,87,23,0
-# Format: result,time_seconds,max_depth,memory_kb,decisions,backtracks,timeout
-```
-
-## Manual Execution
-
-If you prefer step-by-step control:
-
-### 1. Build Solvers
-```bash
-cd solvers
-make clean
-make all
-cd ..
-```
-
-### 2. Run Benchmarks
-```bash
-# Create results directory
-mkdir -p results/plots/{individual_time,individual_memory,advanced}
-
-# Benchmark UF20 (200 instances, 180s timeout)
-python3 benchmarking/benchmark.py datasets/uf20 results/uf20_benchmark.csv 180
-
-# Benchmark UF50
-python3 benchmarking/benchmark.py datasets/uf50 results/uf50_benchmark.csv 180
-
-# Benchmark UF100
-python3 benchmarking/benchmark.py datasets/uf100 results/uf100_benchmark.csv 180
-```
-
-### 3. Generate Plots
-```bash
-# Core comparative plots (8 plots)
-python3 plotting/generate_plots.py
-
-# Individual solver plots (22 plots: 11 time + 11 memory)
-python3 plotting/generate_individual_plots.py
-
-# Advanced analytical plots (10 plots)
-python3 plotting/generate_advanced_plots.py
-```
-
-## Generated Visualizations
-
-### Core Plots (8)
-1. **01_time_per_heuristic.png** - Time across datasets per solver
-2. **02_memory_per_heuristic.png** - Memory usage per solver (excludes CDCL)
-3. **03_time_comparison_per_dataset.png** - Median runtime bars per dataset
-4. **04_memory_comparison_per_dataset.png** - Memory usage bars
-5. **05_decisions_scatter.png** - Decisions vs time scatter
-6. **06_time_decisions_correlation.png** - Correlation analysis
-7. **07_speedup_relative_to_baseline.png** - Speedup vs basic DPLL
-8. **08_success_rate.png** - Success rate (non-timeout) per solver
-
-### Individual Plots (22)
-- 11 time progression plots (one per solver)
-- 11 memory progression plots (one per solver, CDCL excluded)
-
-### Advanced Plots (10)
-- A01: Backtrack efficiency
-- A02: Decision quality
-- A03: Scalability curves
-- A04: Performance distribution (violin)
-- A05: Solver heatmap
-- A06: Efficiency frontier
-- A07: Variance analysis
-- A08: Correlation matrix
-- A09: Winner distribution
-- A10: Performance percentiles
-
-## Metrics Collected
-
-### Primary
-- **time_seconds** - Wall-clock runtime
-- **memory_kb** - Peak resident set size (Python solvers)
-- **result** - SAT/UNSAT determination
-- **timeout** - Boolean flag (180s limit)
-
-### Algorithmic
-- **num_decisions** - Branching decisions
-- **num_backtracks** - Conflict-induced reversals
-- **recursion_depth** - Maximum search depth (DPLL)
-
-### CDCL-specific
-- **learned_clauses** - Number of clauses added
-- **restarts** - Number of search resets
-
-## Datasets
-
-**Source**: SATLIB Uniform Random 3-SAT (phase transition instances)
-
-- **UF20**: 20 variables, 91 clauses, clause/variable ratio ≈ 4.26
-- **UF50**: 50 variables, 218 clauses
-- **UF100**: 100 variables, 430 clauses
-
-**Sampling**: 200 instances randomly selected per dataset
-
-**Total benchmark runs**: 6,600 (200 instances × 3 datasets × 11 solvers)
-
-## Configuration
-
-Edit `run_full_benchmark.sh` to adjust:
-- `TIMEOUT` - Per-instance timeout (default: 180s)
-- `NUM_INSTANCES` - Instances per dataset (change sampling in datasets/)
-
-## Expected Results
-
-### Typical Performance Hierarchy (UF100)
-1. **CDCL** - Fastest, most robust (~0.0007s median)
-2. **VSIDS / MOM / JW** - Strong heuristic DPLL (~0.001-0.003s)
-3. **Unit Prop** - Solid baseline (~0.005s)
-4. **Basic DPLL** - Slowest (~2s+)
-
-### Speedup vs Basic DPLL
-- CDCL: ~2,000-3,000×
-- Unit Propagation: ~4,000× (due to shallow search)
-- Heuristic variants: ~1,000-2,000×
-
-### Success Rates
-- CDCL, VSIDS, MOM, JW, Unit Prop: 100% (no timeouts)
-- Backjumping (without learning): High failure rate (~89%)
-
-## Troubleshooting
-
-### Build Errors
-- Ensure C++17 support: `g++ --version` (need gcc 7+ or clang 5+)
-- macOS: Install Xcode Command Line Tools: `xcode-select --install`
-
-### Python Errors
-- Missing libraries: `pip install pandas numpy matplotlib seaborn`
-- Encoding issues: Ensure Python 3.9+
-
-### Slow Benchmarks
-- Reduce timeout: Edit `TIMEOUT` in `run_full_benchmark.sh`
-- Sample fewer instances: Replace datasets with smaller subsets
-
-### Missing Plots
-- Check `results/plots/` permissions
-- Verify all CSV files generated: `ls -lh results/*.csv`
-- Re-run plotting scripts individually
-
-## Citation
-
-If you use this benchmark package in research, please cite:
-
-```
-SAT Solver Heuristic Analysis Package
-Analysis of Variable Selection and Learning in Boolean Satisfiability
-Datasets: SATLIB UF20/UF50/UF100
-Year: 2025
-```
-
-## License
-
-This package is for educational and research purposes. Solver implementations reference classic SAT literature algorithms.
-
-## Contact
-
-For questions or issues, refer to the original project repository or course materials.
+This repository contains a comprehensive implementation of SAT solvers, benchmarking utilities, and visualization tools. It includes various SAT solving techniques, from basic DPLL to advanced CDCL, and additional modules for hardware verification, package dependency resolution, and Sudoku solving.
 
 ---
 
-**Last Updated**: December 2025  
-**Version**: 1.0  
-**Total Lines of Code**: ~5,000 (solvers + benchmarking + plotting)
+## 📂 Project Structure
+
+```
+FINAL/
+├── AAD-Course-Project-Satisfiability-Problem/
+│   ├── WALKSAT/                     # WalkSAT solver and benchmarks
+│   │   ├── walksat.py
+│   │   └── benchmark.py
+│   ├── Sudoku-solver/               # Sudoku solver using SAT
+│   │   └── sudoku_solver_mrv.py
+│   ├── sudoku_to_cnf_encoder/       # Sudoku to CNF encoder and result plotting
+│   │   ├── sudoku_encoder.py
+│   │   ├── plot_result.py
+│   │   └── compare.py
+│   ├── Set-Theory-SAT-Solver/       # Set theory-based SAT solver
+│   │   ├── set_based_sat_solver.cpp
+│   │   ├── plot_enhanced_time.py
+│   │   ├── requirements.txt
+│   │   └── Makefile
+│   ├── sat_solver_package/          # Core SAT solvers and utilities
+│   │   ├── solvers/                 # C++ and Python solvers
+│   │   │   ├── *.cpp
+│   │   │   ├── *.py
+│   │   │   └── Makefile
+│   │   ├── plotting/                # Plot generation scripts
+│   │   │   ├── generate_plots.py
+│   │   │   ├── generate_individual_plots.py
+│   │   │   └── generate_advanced_plots.py
+│   │   ├── benchmarking/            # Benchmarking utilities
+│   │   │   └── benchmark.py
+│   │   └── requirements.txt
+│   ├── Package_Dependency/          # Package dependency resolution
+│   │   ├── repository.json
+│   │   └── package_manager.py
+│   ├── Hardware_verification/       # Hardware equivalence checker
+│   │   └── hardware_verify.py
+│   ├── DPLL-SAT-solver/             # Basic DPLL SAT solver
+│   │   └── dpll_basic.py
+│   ├── CDCL_SAT_Solver/             # CDCL SAT solver
+│   │   ├── cdcl_solver.cpp
+│   │   ├── verifier.cpp
+│   │   └── Makefile
+│   └── README.md                    # This file
+```
+
+---
+
+## 🛠️ Dependencies
+
+### System Requirements
+- **Operating System**: macOS, Linux, or Windows (WSL)
+- **C++ Compiler**: GCC 7+ or Clang 5+ (for C++17 support)
+- **Python**: 3.9 or higher
+
+### Python Libraries
+Install the required Python libraries using the following commands:
+
+```bash
+pip install -r sat_solver_package/requirements.txt
+pip install -r Set-Theory-SAT-Solver/requirements.txt
+```
+
+Alternatively, install manually:
+```bash
+pip install pandas numpy matplotlib seaborn psutil scipy
+```
+
+---
+
+## 🚀 How to Run
+
+### 1. **WalkSAT Solver**
+- **Files**: `WALKSAT/walksat.py`, `WALKSAT/benchmark.py`
+- **Run**:
+  ```bash
+  python WALKSAT/walksat.py
+  python WALKSAT/benchmark.py
+  ```
+
+### 2. **Sudoku Solver**
+- **Files**: `Sudoku-solver/sudoku_solver_mrv.py`
+- **Run**:
+  ```bash
+  python Sudoku-solver/sudoku_solver_mrv.py
+  ```
+
+### 3. **Sudoku to CNF Encoder**
+- **Files**: `sudoku_to_cnf_encoder/sudoku_encoder.py`, `sudoku_to_cnf_encoder/plot_result.py`, `sudoku_to_cnf_encoder/compare.py`
+- **Run**:
+  ```bash
+  python sudoku_to_cnf_encoder/sudoku_encoder.py
+  python sudoku_to_cnf_encoder/plot_result.py
+  python sudoku_to_cnf_encoder/compare.py
+  ```
+
+### 4. **Set Theory SAT Solver**
+- **Files**: `Set-Theory-SAT-Solver/set_based_sat_solver.cpp`, `Set-Theory-SAT-Solver/plot_enhanced_time.py`
+- **Build**:
+  ```bash
+  cd Set-Theory-SAT-Solver
+  make
+  ```
+- **Run**:
+  ```bash
+  ./set_based_sat_solver
+  python plot_enhanced_time.py
+  ```
+
+### 5. **SAT Solver Package**
+- **Files**: `sat_solver_package/solvers/`, `sat_solver_package/plotting/`, `sat_solver_package/benchmarking/`
+- **Build**:
+  ```bash
+  cd sat_solver_package/solvers
+  make all
+  ```
+- **Run Benchmarks**:
+  ```bash
+  python sat_solver_package/benchmarking/benchmark.py <instances_dir> <output.csv> <timeout_seconds>
+  ```
+- **Generate Plots**:
+  ```bash
+  python sat_solver_package/plotting/generate_plots.py
+  python sat_solver_package/plotting/generate_individual_plots.py
+  python sat_solver_package/plotting/generate_advanced_plots.py
+  ```
+
+### 6. **Package Dependency Manager**
+- **Files**: `Package_Dependency/package_manager.py`, `Package_Dependency/repository.json`
+- **Run**:
+  ```bash
+  python Package_Dependency/package_manager.py Package_Dependency/repository.json <package_names>
+  ```
+
+### 7. **Hardware Verification**
+- **Files**: `Hardware_verification/hardware_verify.py`
+- **Run**:
+  ```bash
+  python Hardware_verification/hardware_verify.py <circuits.json> <scenario_name>
+  ```
+
+### 8. **DPLL SAT Solver**
+- **Files**: `DPLL-SAT-solver/dpll_basic.py`
+- **Run**:
+  ```bash
+  python DPLL-SAT-solver/dpll_basic.py
+  ```
+
+### 9. **CDCL SAT Solver**
+- **Files**: `CDCL_SAT_Solver/cdcl_solver.cpp`, `CDCL_SAT_Solver/verifier.cpp`
+- **Build**:
+  ```bash
+  cd CDCL_SAT_Solver
+  make
+  ```
+- **Run**:
+  ```bash
+  ./cdcl_solver <to_log> <decider> <restarter> <inputfile>
+  ./verifier <inputfile> <assignmentfile>
+  ```
+
+---
+
+## 📊 Visualization
+
+### Core Plots
+- Time and memory usage per solver
+- Decision and backtrack metrics
+- Success rates and scalability analysis
+
+### Advanced Plots
+- Backtrack efficiency
+- Decision quality
+- Solver heatmaps
+- Pareto frontiers
+
+---
+
+## 🧪 Testing and Benchmarking
+
+### Run All Benchmarks
+```bash
+cd sat_solver_package
+python benchmarking/benchmark.py datasets/uf20 results/uf20_benchmark.csv 180
+python benchmarking/benchmark.py datasets/uf50 results/uf50_benchmark.csv 180
+python benchmarking/benchmark.py datasets/uf100 results/uf100_benchmark.csv 180
+```
+
+### Generate All Plots
+```bash
+python plotting/generate_plots.py
+python plotting/generate_individual_plots.py
+python plotting/generate_advanced_plots.py
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+### Build Errors
+- Ensure C++17 support: `g++ --version` (GCC 7+ or Clang 5+ required)
+- macOS: Install Xcode Command Line Tools: `xcode-select --install`
+
+### Python Errors
+- Missing libraries: `pip install -r requirements.txt`
+- Encoding issues: Ensure Python 3.9+
+
+---
+
+**Last Updated**: October 2023  
+**Version**: 1.1  
+**Total Lines of Code**: ~6,000 (solvers + utilities + benchmarks)
