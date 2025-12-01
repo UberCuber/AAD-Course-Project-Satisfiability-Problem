@@ -215,3 +215,11 @@ python plotting/generate_advanced_plots.py
 **Last Updated**: October 2023  
 **Version**: 1.1  
 **Total Lines of Code**: ~6,000 (solvers + utilities + benchmarks)
+
+--- 
+Team Members
+- [Mahek Desai]
+- [Krrish Gupta]
+- [Laveena Jain]
+- [Sarah Roomi]
+- [Shravan Kannan]
